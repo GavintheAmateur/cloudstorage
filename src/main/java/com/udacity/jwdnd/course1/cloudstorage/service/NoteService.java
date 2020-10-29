@@ -11,6 +11,7 @@ public class NoteService {
     private NoteMapper noteMapper;
 
     public void addNote(Note note) {
+
         noteMapper.insertNote(note);
     }
 }

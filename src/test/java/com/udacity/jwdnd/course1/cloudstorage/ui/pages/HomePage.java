@@ -37,6 +37,8 @@ public class HomePage {
     @FindBy(xpath="//*[text()='Close']")
     private WebElement btnClose;
 
+    
+
     public HomePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver,60);

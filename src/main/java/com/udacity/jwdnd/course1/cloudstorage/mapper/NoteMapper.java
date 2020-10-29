@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Mapper
 @Repository
 public interface NoteMapper {
-    @Insert("insert into notes(title,description,created_dt,created_by,modified_dt,modified_by) values (#{title},#{description},#{createdDt},#{modifiedDt}")
+    @Insert("insert into note (title,description,user_id) values (#{noteTitle},#{noteDescription},#{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     Integer insertNote(Note note);
 }

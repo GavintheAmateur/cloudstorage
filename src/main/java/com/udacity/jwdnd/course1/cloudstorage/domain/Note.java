@@ -4,11 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
-
 import javax.persistence.Entity;
 import java.io.Serializable;
 
@@ -19,8 +14,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Note extends BaseEntity implements Serializable {
-    private String title;
-    private String description;
+    private String noteTitle;
+    private String noteDescription;
     private Integer userId;
 
 }

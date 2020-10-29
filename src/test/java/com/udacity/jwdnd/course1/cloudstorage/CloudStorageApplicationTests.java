@@ -62,7 +62,7 @@ class CloudStorageApplicationTests {
 	@AfterAll
 	public void afterAll() {
 		if (this.driver != null) {
-			driver.quit();
+			//driver.quit();
 		}
 	}
 
@@ -87,19 +87,6 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Login",driver.getTitle());
 	}
 
-	private void signup() {
-		String urlSignUp = "http://localhost:"+port+"/signup";
-		driver.get(urlSignUp);
-		SignupPage signupPage = new SignupPage(driver);
-		signupPage.signup(firstname,lastname,username,password);
-	}
-
-	private void login() {
-		String urlLogin = "http://localhost:"+port+"/login";
-		driver.get(urlLogin);
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.signin(username,password);
-	}
 
 	@Test
 	public void testCreateNotes() {
@@ -143,5 +130,18 @@ class CloudStorageApplicationTests {
 		throw new NotImplementedException("");
 	}
 
+	private void signup() {
+		String urlSignUp = "http://localhost:"+port+"/signup";
+		driver.get(urlSignUp);
+		SignupPage signupPage = new SignupPage(driver);
+		signupPage.signup(firstname,lastname,username,password);
+	}
+
+	private void login() {
+		String urlLogin = "http://localhost:"+port+"/login";
+		driver.get(urlLogin);
+		LoginPage loginPage = new LoginPage(driver);
+		loginPage.signin(username,password);
+	}
 
 }

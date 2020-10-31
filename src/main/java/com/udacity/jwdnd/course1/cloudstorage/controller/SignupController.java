@@ -28,9 +28,11 @@ public class SignupController {
             signupError = "The username already exists.";
         }
         if (signupError == null) {
-            int rowsAdded = userService.createUser(appUser);
-            if (rowsAdded < 0) {
-                signupError = "There was an error signing you up. Please try again.";
+            try {
+                AppUser user = userService.createUser(appUser);
+            }
+            catch(Exception e) {
+                signupError = "There was an error signing you up. Please try again: "+e;
             }
         }
         if (signupError == null) {

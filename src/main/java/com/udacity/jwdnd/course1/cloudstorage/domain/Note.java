@@ -16,6 +16,6 @@ import java.io.Serializable;
 public class Note extends BaseEntity implements Serializable {
     private String noteTitle;
     private String noteDescription;
-    private Integer userId;
+    private Long userId;
 
 }

@@ -1,7 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.udacity.jwdnd.course1.cloudstorage.domain.AppUser;
-import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
+import com.udacity.jwdnd.course1.cloudstorage.entity.AppUser;
+import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/signup")
 public class SignupController {
     @Autowired
-    private UserService userService;
+    private AppUserService appUserService;
 
     @GetMapping()
     public String signup() {
@@ -24,12 +24,12 @@ public class SignupController {
     @PostMapping()
     public String signupUser(@ModelAttribute AppUser appUser, Model model) {
         String signupError = null;
-        if (!userService.isUsernameAvailable(appUser.getUsername())) {
+        if (!appUserService.isUsernameAvailable(appUser.getUsername())) {
             signupError = "The username already exists.";
         }
         if (signupError == null) {
             try {
-                AppUser user = userService.createUser(appUser);
+                AppUser user = appUserService.createUser(appUser);
             }
             catch(Exception e) {
                 signupError = "There was an error signing you up. Please try again: "+e;

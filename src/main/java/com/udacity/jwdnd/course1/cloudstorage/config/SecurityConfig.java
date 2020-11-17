@@ -1,36 +1,31 @@
 package com.udacity.jwdnd.course1.cloudstorage.config;
 
-import com.udacity.jwdnd.course1.cloudstorage.service.AuthenticationService;
-import com.udacity.jwdnd.course1.cloudstorage.service.EncryptionService;
-import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private AuthenticationService authenticationService;
-    private UserService userService;
+    private AppUserService appUserService;
     private PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(AuthenticationService authenticationService, UserService userService, PasswordEncoder passwordEncoder) {
-        this.authenticationService = authenticationService;
-        this.userService = userService;
+    public SecurityConfig(AppUserService appUserService, PasswordEncoder passwordEncoder) {
+        this.appUserService = appUserService;
         this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
+
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(this.authenticationService);
-        auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
+        auth.authenticationProvider(appUserService).userDetailsService(appUserService).passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -40,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll().anyRequest().authenticated();
 
         http.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll();
-        http.logout().logoutSuccessUrl("/login?logout").permitAll();
+        http.logout().logoutUrl("/logout").logoutRequestMatcher(new AntPathRequestMatcher("/logout")).invalidateHttpSession(true).deleteCookies("JSESSIONID").logoutSuccessUrl("/login?logout").permitAll();
         http.csrf();
     }
 }

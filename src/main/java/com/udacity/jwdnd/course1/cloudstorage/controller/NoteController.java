@@ -1,35 +1,49 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.udacity.jwdnd.course1.cloudstorage.domain.AppUser;
-import com.udacity.jwdnd.course1.cloudstorage.domain.Note;
+import com.udacity.jwdnd.course1.cloudstorage.entity.AppUser;
+import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
+import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
-import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/notes")
+@RequestMapping("/note")
 public class NoteController {
 
     private NoteService noteService;
-    @Autowired
-    ObjectMapper objectMapper;
+    private AppUserService appUserService;
 
-    public NoteController(NoteService noteService) {
+    public NoteController(NoteService noteService,AppUserService appUserService) {
         this.noteService = noteService;
+        this.appUserService =appUserService;
     }
 
-    @PostMapping("/add")
-    public String addNote(Note note, Authentication authentication){
-        AppUser appUser = (AppUser) authentication.getPrincipal();
-        note.setUserId(appUser.getId());
-        noteService.addNote(note);
+    @GetMapping
+    public String getFile(@PathVariable Long id) {
+            return "home";
+    }
+
+    @PutMapping()
+    public String createOrUpdateNote(Note note, Authentication auth, Model model){
+        String username = auth.getPrincipal().toString();
+        AppUser user = appUserService.loadUserByUsername(username);
+        Long userId = user.getId();
+        note.setUserId(userId);
+
+        noteService.addOrUpdateNote(note);
+
+        model.addAttribute("notes", noteService.getNotesByUserId(userId));
+        model.addAttribute("activeTab","note");
         return "home";
     }
+
+    @DeleteMapping()
+    public String deleteNote(@RequestParam Long id){
+        noteService.deleteNoteById(id);
+        return "home";
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.udacity.jwdnd.course1.cloudstorage.domain;
+package com.udacity.jwdnd.course1.cloudstorage.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
@@ -15,13 +15,14 @@ import java.util.Date;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id",unique = true,nullable = false)
-    private Long id;
+    protected Long id;
 
     @CreatedBy
     @Column(name = "created_by")

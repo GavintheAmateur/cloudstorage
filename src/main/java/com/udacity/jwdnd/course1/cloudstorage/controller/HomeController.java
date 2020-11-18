@@ -27,6 +27,11 @@ public class HomeController {
         this.fileService = fileService;
     }
 
+    @GetMapping("/error")
+    public String error() {
+            return "error";
+        }
+
     @GetMapping()
     public String getHome(Authentication auth, Model model) {
         String username = auth.getPrincipal().toString();

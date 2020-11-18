@@ -18,7 +18,7 @@
     <h1 class="display-5">Sign Up</h1>
     <form action="signup" method="POST">
         <div th:if="${signupSuccess}" class="alert alert-dark">
-            You successfully signed up! Please continue to the <a th:href="@{/login}">login</a> page.
+            You've successfully signed up! You will be redirected to login page in 3 seconds!
         </div>
         <div class="alert alert-danger" th:if="${signupError}">
             <span th:text="${signupError}"></span>
@@ -54,4 +54,12 @@
     </form>
 </div>
 </body>
+
+
+<script th:if="${signupSuccess}">
+    setTimeout(function() {
+        window.location.href = "/login"
+    }, 3000);
+</script>
+</html>
 </html>

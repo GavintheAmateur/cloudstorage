@@ -33,7 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/signup", "/css/**", "/js/**")
                 .permitAll().anyRequest().authenticated();
-
         http.formLogin().loginPage("/login").defaultSuccessUrl("/home", true).permitAll();
         http.logout().logoutUrl("/logout").logoutRequestMatcher(new AntPathRequestMatcher("/logout")).invalidateHttpSession(true).deleteCookies("JSESSIONID").logoutSuccessUrl("/login?logout").permitAll();
         http.csrf();

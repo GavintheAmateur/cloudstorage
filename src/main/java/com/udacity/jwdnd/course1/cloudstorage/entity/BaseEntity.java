@@ -20,7 +20,7 @@ import java.util.Date;
 public abstract class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name="id",unique = true,nullable = false)
     protected Long id;
 

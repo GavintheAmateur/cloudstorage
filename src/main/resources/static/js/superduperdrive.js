@@ -36,4 +36,3 @@ function uploadFile() {
         return true;
     }
 }
-

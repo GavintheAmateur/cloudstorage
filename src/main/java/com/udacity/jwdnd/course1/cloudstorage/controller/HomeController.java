@@ -5,7 +5,6 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.AppUserFile;
 import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.service.MessageListService;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

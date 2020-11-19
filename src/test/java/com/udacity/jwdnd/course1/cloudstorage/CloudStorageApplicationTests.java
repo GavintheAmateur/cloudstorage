@@ -4,7 +4,6 @@ import com.udacity.jwdnd.course1.cloudstorage.ui.pages.HomePage;
 import com.udacity.jwdnd.course1.cloudstorage.ui.pages.LoginPage;
 import com.udacity.jwdnd.course1.cloudstorage.ui.pages.SignupPage;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -12,13 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
-
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.properties")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CloudStorageApplicationTests {
+class CloudeStorageApplicationTests {
 
 	@Value("${testaccount1.firstname}")
 	private String firstname;
@@ -62,20 +60,29 @@ class CloudStorageApplicationTests {
 	@LocalServerPort
 	private int port;
 
+	private String baseUrl;
+	private String urlHome;
+	private String urlLogin;
+	private String urlSignup;
+	private String urlLogout;
+
+
 	private WebDriver driver;
+
 
 	@BeforeAll
 	 public void beforeAll() {
 		WebDriverManager.chromedriver().setup();
 		this.driver = new ChromeDriver();
 		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+		baseUrl = "http://localhost:"+port;
+		urlHome = baseUrl+"/home";
+		urlLogin = baseUrl + "/login";
+		urlSignup = baseUrl + "/signup";
+		urlLogout = baseUrl+"/logout";
+
 	}
 
-
-	@AfterEach
-	public void afterEach()  {
-		logout();
-	}
 
 
 
@@ -87,11 +94,8 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void testUserLoginFlow() {
-		String baseUrl = "http://localhost:"+port;
-		String urlHome = baseUrl+"/home";
-		String urlLogin = baseUrl + "/login";
-		String urlSignup = baseUrl + "/signup";
+	@Order(1)
+	public void testAppUserLoginFlow() {
 
 		//Write a test that verifies that an unauthorized user can only access the login and signup pages.
 		driver.get(urlHome);
@@ -99,56 +103,24 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Login",driver.getTitle());
 		driver.get(urlSignup);
 		Assertions.assertEquals("Sign Up",driver.getTitle());
-		//Write a test that signs up a new user, logs in, verifies that the home page is accessible, logs out, and verifies that the home page is no longer accessible.
+		//Write a test that signs up a new user, logs in, verifies that the home page is accessible
 		signup();
 		login();
 
 		driver.get(urlHome);
 		Assertions.assertEquals("Home",driver.getTitle());
 
-		HomePage homePage = new HomePage(driver);
-		homePage.logout();
-
-		driver.get(urlHome);
-		Assertions.assertEquals("Login",driver.getTitle());
 	}
 
-
 	@Test
-	public void testCrudNotes() {
-		//Write a test that creates a note, and verifies it is displayed.
-		signup();
-		login();
-		String urlHome = "http://localhost:"+port+"/home";
-		driver.get(urlHome);
-		HomePage homePage = new HomePage(driver);
-		homePage.createNote(noteTitle,noteDescription);
-        Assertions.assertEquals(true, homePage.isTextInSource(noteTitle));
-        Assertions.assertEquals(true, homePage.isTextInSource(noteDescription));
-
-		//Write a test that edits an existing note and verifies that the changes are displayed.
-
-		homePage.updateNote(noteTitle,noteDescription,noteTitleUpdated,noteDescriptionUpdated);
-		Assertions.assertEquals(true, homePage.isTextInSource(noteTitleUpdated));
-		Assertions.assertEquals(true, homePage.isTextInSource(noteDescriptionUpdated));
-		Assertions.assertEquals(false, homePage.isTextInSource(noteTitle));
-		Assertions.assertEquals(false, homePage.isTextInSource(noteDescription));
-		//Write a test that deletes a note and verifies that the note is no longer displayed.
-		homePage.deleteNote(noteTitleUpdated,noteDescriptionUpdated);
-		Assertions.assertEquals(false, homePage.isTextInSource(noteTitleUpdated));
-		Assertions.assertEquals(false, homePage.isTextInSource(noteDescriptionUpdated));
-	}
-
-
-	@Test
+	@Order(2)
 	public void testCrudCredentials() {
-		signup();
-		login();
+
 		//Write a test that creates a set of credentials, verifies that they are displayed, and verifies that the displayed password is encrypted.
-		String urlHome = "http://localhost:"+port+"/home";
 		driver.get(urlHome);
 		HomePage homePage = new HomePage(driver);
 		homePage.createCredential(credentialUrl,credentialUsername,credentialPassword);
+		driver.get(urlHome);
 		Assertions.assertEquals(true, homePage.isTextInSource(credentialUrl));
 		Assertions.assertEquals(true, homePage.isUsernameViewableInCredentialTable(credentialUsername));
 		Assertions.assertEquals(false, homePage.isPasswordViewableInCredentialTable(credentialPassword));
@@ -162,6 +134,8 @@ class CloudStorageApplicationTests {
 		homePage.closeEditCredentialWindow();
 
 		homePage.updateCredential(credentialUrl,credentialUsernameUpdated,credentialPasswordUpdated);
+		driver.get(urlHome);
+
 		Assertions.assertEquals(true, homePage.isTextInSource(credentialUrl));
 		Assertions.assertEquals(true, homePage.isUsernameViewableInCredentialTable(credentialUsernameUpdated));
 		Assertions.assertEquals(false, homePage.isUsernameViewableInCredentialTable(credentialUsername));
@@ -173,11 +147,44 @@ class CloudStorageApplicationTests {
 
 		//Write a test that deletes an existing set of credentials and verifies that the credentials are no longer displayed.
 		homePage.deleteCredential(credentialUrl);
+		driver.get(urlHome);
 		Assertions.assertEquals(false, homePage.isTextInSource(credentialUrl));
 
 	}
 
+
+
 	@Test
+	@Order(3)
+	public void testCrudNotes() {
+		//Write a test that creates a note, and verifies it is displayed.
+
+		driver.get(urlHome);
+		HomePage homePage = new HomePage(driver);
+		homePage.createNote(noteTitle,noteDescription);
+		driver.get(urlHome);
+		Assertions.assertEquals(true, homePage.isTextInSource(noteTitle));
+        Assertions.assertEquals(true, homePage.isTextInSource(noteDescription));
+
+		//Write a test that edits an existing note and verifies that the changes are displayed.
+
+		homePage.updateNote(noteTitle,noteDescription,noteTitleUpdated,noteDescriptionUpdated);
+		driver.get(urlHome);
+		Assertions.assertEquals(true, homePage.isTextInSource(noteTitleUpdated));
+		Assertions.assertEquals(true, homePage.isTextInSource(noteDescriptionUpdated));
+		Assertions.assertEquals(false, homePage.isTextInSource(noteTitle));
+		Assertions.assertEquals(false, homePage.isTextInSource(noteDescription));
+		//Write a test that deletes a note and verifies that the note is no longer displayed.
+		homePage.deleteNote(noteTitleUpdated,noteDescriptionUpdated);
+		driver.get(urlHome);
+		Assertions.assertEquals(false, homePage.isTextInSource(noteTitleUpdated));
+		Assertions.assertEquals(false, homePage.isTextInSource(noteDescriptionUpdated));
+	}
+
+
+
+	@Test
+	@Order(4)
 	public void testFileFlow() {
 		// this automation test is not required so just manually check the following:
 		//1. The user should be able to upload files and see any files they previously uploaded.
@@ -186,24 +193,36 @@ class CloudStorageApplicationTests {
 		// For example, a user should not be able to upload two files with the same name, but they'll never know unless you tell them!
 	}
 
+	@Test
+	@Order(5)
+	public void testUserLogoutFlow() {
+		//logs out, and verifies that the home page is no longer accessible.
+
+
+		driver.get(urlHome);
+		Assertions.assertEquals("Home",driver.getTitle());
+
+		HomePage homePage = new HomePage(driver);
+		homePage.logout();
+
+		driver.get(urlHome);
+		Assertions.assertEquals("Login",driver.getTitle());	}
+
 
 	private void signup() {
-		String urlSignUp = "http://localhost:"+port+"/signup";
-		driver.get(urlSignUp);
+		driver.get(urlSignup);
 		SignupPage signupPage = new SignupPage(driver);
 		signupPage.signup(firstname,lastname,username,password);
 	}
 
 
 	private void login() {
-		String urlLogin = "http://localhost:"+port+"/login";
 		driver.get(urlLogin);
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.signin(username,password);
 	}
 
 	private void logout() {
-		String urlLogout = "http://localhost:"+port+"/logout";
 		driver.get(urlLogout);
 	}
 

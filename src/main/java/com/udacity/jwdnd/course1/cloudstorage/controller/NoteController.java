@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.AppUser;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import com.udacity.jwdnd.course1.cloudstorage.service.NoteService;
+import com.udacity.jwdnd.course1.cloudstorage.utils.AppHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,11 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class NoteController {
 
     private NoteService noteService;
-    private AppUserService appUserService;
 
     public NoteController(NoteService noteService,AppUserService appUserService) {
         this.noteService = noteService;
-        this.appUserService =appUserService;
     }
 
     @GetMapping
@@ -28,22 +27,29 @@ public class NoteController {
 
     @PutMapping()
     public String createOrUpdateNote(Note note, Authentication auth, Model model){
-        String username = auth.getPrincipal().toString();
-        AppUser user = appUserService.loadUserByUsername(username);
-        Long userId = user.getId();
+        Long userId = AppHelper.getUserIdFromAuth(auth);
         note.setUserId(userId);
+        try {
+            noteService.addOrUpdateNote(note);
+        } catch (Exception ex) {
+            model.addAttribute("errorMsg", ex.getMessage());
+        } finally {
+            model.addAttribute("activeTab", "note");
+            return "result";
+        }
 
-        noteService.addOrUpdateNote(note);
-
-        model.addAttribute("notes", noteService.getNotesByUserId(userId));
-        model.addAttribute("activeTab","note");
-        return "home";
     }
 
     @DeleteMapping()
-    public String deleteNote(@RequestParam Long id){
-        noteService.deleteNoteById(id);
-        return "home";
+    public String deleteNote(@RequestParam Long id, Model model){
+        try {
+            noteService.deleteNoteById(id);
+        } catch (Exception ex) {
+            model.addAttribute("errorMsg", ex.getMessage());
+        } finally {
+            model.addAttribute("activeTab", "note");
+            return "result";
+        }
     }
 
 }

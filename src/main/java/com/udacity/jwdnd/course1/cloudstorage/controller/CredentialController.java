@@ -2,8 +2,10 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.AppUser;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.exception.FileStorageException;
 import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
+import com.udacity.jwdnd.course1.cloudstorage.utils.AppHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,32 +16,39 @@ import org.springframework.web.bind.annotation.*;
 public class CredentialController {
 
     private CredentialService credentialService;
-    private AppUserService appUserService;
 
-    public CredentialController(CredentialService credentialService,AppUserService appUserService) {
+    public CredentialController(CredentialService credentialService, AppUserService appUserService) {
         this.credentialService = credentialService;
-        this.appUserService =appUserService;
     }
 
     @PutMapping()
-    public String createOrUpdateCredential(Credential credential, Authentication auth, Model model){
-        String username = auth.getPrincipal().toString();
-        AppUser user = appUserService.loadUserByUsername(username);
-        Long userId = user.getId();
+    public String createOrUpdateCredential(Credential credential, Authentication auth, Model model) {
+        Long userId = AppHelper.getUserIdFromAuth(auth);
         credential.setUserId(userId);
 
-        credentialService.addOrUpdateCredential(credential);
+        try {
+            credentialService.addOrUpdateCredential(credential);
+        } catch (Exception ex) {
+            model.addAttribute("errorMsg", ex.getMessage());
+        } finally {
+            model.addAttribute("activeTab", "credential");
+            return "result";
+        }
 
-        model.addAttribute("credentials", credentialService.getCredentialsByUserId(userId));
-        model.addAttribute("activeTab","credential");
-        return "home";
     }
 
 
     @DeleteMapping()
-    public String deleteCredential(@RequestParam Long id){
-        credentialService.deleteCredentialById(id);
-        return "home";
+    public String deleteCredential(@RequestParam Long id,Model model) {
+        try {
+            credentialService.deleteCredentialById(id);
+        } catch (Exception ex) {
+            model.addAttribute("errorMsg", ex.getMessage());
+        } finally {
+            model.addAttribute("activeTab", "credential");
+            return "result";
+        }
+
     }
 
 }

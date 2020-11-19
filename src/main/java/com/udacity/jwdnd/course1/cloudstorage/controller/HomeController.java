@@ -2,9 +2,7 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.AppUser;
 import com.udacity.jwdnd.course1.cloudstorage.entity.AppUserFile;
-import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
-import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
-import com.udacity.jwdnd.course1.cloudstorage.service.MessageListService;
+import com.udacity.jwdnd.course1.cloudstorage.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,16 +18,26 @@ public class HomeController {
     private MessageListService messageListService;
     private AppUserService appUserService;
     private FileService fileService;
-    public HomeController(MessageListService messageListService, AppUserService appUserService,FileService fileService) {
+    private NoteService noteService;
+    private CredentialService credentialService;
+
+    public HomeController(MessageListService messageListService, AppUserService appUserService, FileService fileService, NoteService noteService, CredentialService credentialService) {
         this.messageListService = messageListService;
         this.appUserService = appUserService;
         this.fileService = fileService;
+        this.noteService = noteService;
+        this.credentialService = credentialService;
     }
 
     @GetMapping("/error")
     public String error() {
             return "error";
         }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
 
     @GetMapping()
     public String getHome(Authentication auth, Model model) {
@@ -41,11 +49,12 @@ public class HomeController {
         try {
             AppUser user = appUserService.loadUserByUsername(username);
             Long userId = user.getId();
-            List<AppUserFile> list = fileService.getUserFileList(userId);
-            model.addAttribute("appUserFiles",list);
-            model.addAttribute("activeTab","file");
+            model.addAttribute("appUserFiles",fileService.getUserFileList(userId));
+            model.addAttribute("credentials", credentialService.getCredentialsByUserId(userId));
+            model.addAttribute("notes", noteService.getNotesByUserId(userId));
             return "home";
         } catch(NullPointerException npe) {
+
             return "redirect:/logout";
         }
 

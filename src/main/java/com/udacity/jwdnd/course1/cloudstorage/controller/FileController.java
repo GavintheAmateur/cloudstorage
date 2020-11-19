@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.AppUserFile;
 import com.udacity.jwdnd.course1.cloudstorage.exception.FileStorageException;
 import com.udacity.jwdnd.course1.cloudstorage.service.AppUserService;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.utils.AppHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -32,11 +33,9 @@ import java.util.stream.Collectors;
 public class FileController {
 
     private final FileService fileService;
-    private final AppUserService appUserService;
 
     public FileController(FileService fileService, AppUserService appUserService) {
         this.fileService = fileService;
-        this.appUserService = appUserService;
     }
 
     @GetMapping("{id}")
@@ -56,9 +55,7 @@ public class FileController {
 
     @PostMapping()
     public String uploadFile(Authentication auth, MultipartFile fileUpload, Model model) throws FileStorageException {
-        String username = auth.getPrincipal().toString();
-        AppUser user = appUserService.loadUserByUsername(username);
-        Long userId = user.getId();
+        Long userId = AppHelper.getUserIdFromAuth(auth);
         try {
             if (!fileUpload.isEmpty()) {
                 fileService.store(fileUpload, userId);
@@ -66,9 +63,6 @@ public class FileController {
                 throw new FileStorageException("No file was uploaded. Please make sure to choose file first.");
             }
         }
-//        List<AppUserFile> list = fileService.getUserFileList(userId);
-//        model.addAttribute("appUserFiles", list);
-//        model.addAttribute("activeTab", "file");
         catch(FileStorageException ex) {
             model.addAttribute("errorMsg", ex.getErrorMsg());
         }
@@ -77,9 +71,7 @@ public class FileController {
 
     @DeleteMapping()
     public String deleteFile(@RequestParam Long id,Model model) {
-
         fileService.deleteFileById(id);
-        model.addAttribute("resultMsg", "SUCCESS");
         return "result";
     }
 

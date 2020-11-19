@@ -12,7 +12,8 @@
         <div class="container justify-content-center w-50 p-3" style="margin-top: 5em;" >
             <div th:if = "${errorMsg==null}" class="alert alert-success fill-parent">
                 <h1 class="display-5">Success</h1>
-                <span>Your changes were successfully saved. Click <a th:href="@{/home}">here</a> to continue.</span>
+                <span>Your changes were successfully saved. Redirecting to homepage in 1 second...</span>
+                <span>Click<a th:href="@{/home}">here if not</a></span>
             </div>
             <div th:if = "${errorMsg}!=null" class="alert alert-danger fill-parent">
                 <h1 class="display-5">Error</h1>
@@ -22,4 +23,11 @@
             </div>
         </div>
     </body>
+<script>
+    $(document).ready(function () {
+        window.setTimeout(function () {
+            location.href = "/home";
+        }, 1000);
+    });
+</script>
 </html>
